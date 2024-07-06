@@ -1,0 +1,6 @@
+*.pyc
+__pycache__/
+instance/
+.webassets-cache
+gps_tracking_map.html
+gps_data.db
