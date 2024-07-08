@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit GPS Data</title>
+</head>
+<body>
+    <h1>Submit GPS Data</h1>
+    <form action="/gps" method="post">
+        <label for="timestamp">Timestamp:</label><br>
+        <input type="text" id="timestamp" name="timestamp" required><br><br>
+        <label for="latitude">Latitude:</label><br>
+        <input type="text" id="latitude" name="latitude" required><br><br>
+        <label for="longitude">Longitude:</label><br>
+        <input type="text" id="longitude" name="longitude" required><br><br>
+        <label for="speed">Speed:</label><br>
+        <input type="text" id="speed" name="speed" required><br><br>
+        <label for="distance">Distance:</label><br>
+        <input type="text" id="distance" name="distance" required><br><br>
+        <input type="submit" value="Submit">
+    </form>
+    <br>
+    <a href="/show_gps_data">View GPS Data</a>
+</body>
+</html>
