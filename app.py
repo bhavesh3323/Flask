@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for
 import sqlite3
+from datetime import datetime
+import folium
 
 app = Flask(__name__)
 
@@ -22,7 +24,7 @@ conn.commit()
 def receive_gps_data():
     if request.method == 'POST':
         data = request.form  # For form data
-        timestamp = data['timestamp']
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Generate current timestamp
         latitude = data['latitude']
         longitude = data['longitude']
         speed = data['speed']
@@ -45,6 +47,24 @@ def show_gps_data():
     # Convert the data into a list of dictionaries for easier handling in the template
     gps_data_dicts = [dict(timestamp=row[0], latitude=row[1], longitude=row[2], speed=row[3], distance=row[4]) for row in gps_data]
     return render_template('gps_data.html', gps_data=gps_data_dicts)
+
+@app.route('/map')
+def show_map():
+    cursor.execute('SELECT latitude, longitude FROM gps_data')
+    gps_data = cursor.fetchall()
+
+    if gps_data:
+        map_center = gps_data[0]
+        mymap = folium.Map(location=map_center, zoom_start=12)
+
+        for data in gps_data:
+            folium.Marker(location=data).add_to(mymap)
+
+        map_html = mymap._repr_html_()
+    else:
+        map_html = "<p>No GPS data available to generate the map.</p>"
+
+    return render_template('gps_map.html', map_html=map_html)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
