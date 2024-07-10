@@ -57,8 +57,12 @@ def show_map():
         map_center = gps_data[0]
         mymap = folium.Map(location=map_center, zoom_start=12)
 
+        # Add markers for each data point
         for data in gps_data:
             folium.Marker(location=data).add_to(mymap)
+
+        # Draw the route
+        folium.PolyLine(gps_data, color="red", weight=2.5, opacity=1).add_to(mymap)
 
         map_html = mymap._repr_html_()
     else:
