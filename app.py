@@ -2,6 +2,8 @@ from flask import Flask, request, render_template, redirect, url_for
 import sqlite3
 from datetime import datetime
 import folium
+import openrouteservice
+import os
 
 app = Flask(__name__)
 
@@ -20,15 +22,19 @@ cursor.execute('''
 ''')
 conn.commit()
 
+# Replace 'your-api-key' with your actual OpenRouteService API key
+ors_api_key = '5b3ce3597851110001cf624891ebe95abe0b4b919148871a0034d027'
+ors_client = openrouteservice.Client(key=ors_api_key)
+
 @app.route('/gps', methods=['GET', 'POST'])
 def receive_gps_data():
     if request.method == 'POST':
         data = request.form  # For form data
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # Generate current timestamp
-        latitude = data['latitude']
-        longitude = data['longitude']
-        speed = data['speed']
-        distance = data['distance']
+        latitude = float(data['latitude'])
+        longitude = float(data['longitude'])
+        speed = float(data['speed'])
+        distance = float(data['distance'])
 
         cursor.execute('''
             INSERT INTO gps_data (timestamp, latitude, longitude, speed, distance)
@@ -61,8 +67,10 @@ def show_map():
         for data in gps_data:
             folium.Marker(location=data).add_to(mymap)
 
-        # Draw the route
-        folium.PolyLine(gps_data, color="red", weight=2.5, opacity=1).add_to(mymap)
+        # Generate the route using OpenRouteService
+        coords = [(data[1], data[0]) for data in gps_data]  # (longitude, latitude) pairs
+        route = ors_client.directions(coords, profile='driving-car', format='geojson')
+        folium.GeoJson(route).add_to(mymap)
 
         map_html = mymap._repr_html_()
     else:
